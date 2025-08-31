@@ -1,5 +1,12 @@
+import dotenv from "dotenv";
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer";
+dotenv.config();
+
+// console.log("mail trap user ", process.env.MAILTRAP_SMTP_HOST);
+// console.log("mail trap user ", process.env.MAILTRAP_SMTP_PORT);
+// console.log("mail trap user ", process.env.MAILTRAP_SMTP_USER);
+// console.log("mail trap user ", process.env.MAILTRAP_SMTP_PASSWORD);
 
 // ! Send the email
 const sendEmail = async (options) => {
@@ -15,11 +22,11 @@ const sendEmail = async (options) => {
   const emailHtml = mailGenerator.generate(options.mailgenContent);
 
   const transport = nodemailer.createTransport({
-    host: process.env.MAILTRAP_SMPT_HOST,
-    port: process.env.MAILTRAP_SMPT_PORT,
+    host: process.env.MAILTRAP_SMTP_HOST,
+    port: Number(process.env.MAILTRAP_SMTP_PORT),
     auth: {
-      user: process.env.MAILTRAP_SMPT_USER,
-      password: process.env.MAILTRAP_SMPT_PASSWORD,
+      user: process.env.MAILTRAP_SMTP_USER,
+      pass: process.env.MAILTRAP_SMTP_PASSWORD,
     },
   });
 

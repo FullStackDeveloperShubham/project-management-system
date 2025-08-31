@@ -23,7 +23,7 @@ const generateAccessAndRefreshToken = async (userId) => {
 
 // ! USER REGISTRATION
 const resgisterUser = asynHandler(async (req, res) => {
-  const { email, username, password, role } = req.body;
+  const { email, username, password, fullName, role } = req.body;
 
   //! check if user already exists
   const existingUser = await User.findOne({
@@ -31,9 +31,7 @@ const resgisterUser = asynHandler(async (req, res) => {
   });
 
   if (existingUser) {
-    throw new ApiError(409, {
-      message: "User with email or username already exist",
-    });
+    throw new ApiError(409, "User with email or username already exist");
   }
 
   // ! CREATE NEW USER
@@ -41,6 +39,7 @@ const resgisterUser = asynHandler(async (req, res) => {
     email,
     username,
     password,
+    fullName,
     isEmailVerified: false,
   });
 
@@ -73,16 +72,15 @@ const resgisterUser = asynHandler(async (req, res) => {
     });
   }
 
-  return (
-    res.status(201),
-    json(
+  return res
+    .status(201)
+    .json(
       new ApiResponse(
         200,
         { user: createdUser },
         "User registered successfully. Verification email sent",
       ),
-    )
-  );
+    );
 });
 
 export { resgisterUser };
