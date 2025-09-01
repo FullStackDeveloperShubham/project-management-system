@@ -84,7 +84,7 @@ const resgisterUser = asynHandler(async (req, res) => {
 });
 
 // ! LogIn user
-const logIn = asynHandler(async (req, re) => {
+const logIn = asynHandler(async (req, res) => {
   const { email, password, username } = req.body;
   if (!email) {
     throw new ApiError(400, " email require");
@@ -109,7 +109,7 @@ const logIn = asynHandler(async (req, re) => {
 
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: false,
   };
   return res
     .status(200)
