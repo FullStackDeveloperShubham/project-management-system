@@ -83,4 +83,49 @@ const resgisterUser = asynHandler(async (req, res) => {
     );
 });
 
-export { resgisterUser };
+// ! LogIn user
+const logIn = asynHandler(async (req, re) => {
+  const { email, password, username } = req.body;
+  if (!email) {
+    throw new ApiError(400, " email require");
+  }
+
+  const existUser = await User.findOne({ email });
+  if (!existUser) {
+    throw new ApiError(400, " user dose not exist ");
+  }
+
+  const isPasswordValid = await existUser.isPasswordCorrect(password);
+  if (!isPasswordValid) {
+    throw new ApiError(400, " Password dosent match");
+  }
+
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    existUser._id,
+  );
+  const loggedInUser = await User.findById(existUser._id).select(
+    "-password -refreshToken -emailVerificationToken -emailVerificationExpiry",
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user: loggedInUser,
+          accessToken,
+          refreshToken,
+        },
+        "User logged in successfully",
+      ),
+    );
+});
+
+export { logIn, resgisterUser };
