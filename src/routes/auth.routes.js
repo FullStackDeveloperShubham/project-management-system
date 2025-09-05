@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { logIn, resgisterUser } from "../controllers/auth.controllers.js";
+import {
+  logIn,
+  logOut,
+  resgisterUser,
+} from "../controllers/auth.controllers.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middlewares.js";
 import {
   UserLogInValidator,
@@ -8,10 +13,10 @@ import {
 
 const router = Router();
 
-router
-  .route("/register")
-  .post(userRegisterValidator(), validate, resgisterUser);
+router.route("/register").post(userRegisterValidator(), resgisterUser);
 
 router.route("/login").post(UserLogInValidator(), validate, logIn);
+
+router.route("/logout").post(verifyJWT, logOut);
 
 export default router;
