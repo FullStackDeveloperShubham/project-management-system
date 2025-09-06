@@ -159,6 +159,39 @@ const getCurrentUser = asynHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "Current user fetch successfully"));
 });
 
-// !
+// ! verify email
+const verifyEmail = asynHandler(async (req, res) => {
+  const { verificationToken } = req.params;
+  if (!verificationToken) {
+    throw new ApiError(400, "Email verification token is missing");
+  }
 
-export { getCurrentUser, logIn, logOut, resgisterUser };
+  let hashedToken = crypto.createHash("sha256");
+  update(verificationToken).digest("hex");
+
+  const user = await User.findOne({
+    emailVerificationToken: hashedToken,
+    emailVerificationExpiry: { $gt: Date.now() },
+  });
+  if (!user) {
+    throw new ApiError(400, "Token is invalid or expierd");
+  }
+
+  user.emailVerificationToken = undefined;
+  user.emailVerificationExpiry = undefined;
+
+  user.isEmailVerified = true;
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        isEmailVerified: true,
+      },
+      "Email is verified",
+    ),
+  );
+});
+
+export { getCurrentUser, logIn, logOut, resgisterUser, verifyEmail };
