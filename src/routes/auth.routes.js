@@ -1,9 +1,12 @@
 import { Router } from "express";
 import {
+  changeCurrentPassword,
   forgotPasswordRequest,
+  getCurrentUser,
   logIn,
   logOut,
   refreshAccessToken,
+  resendEmailVerification,
   resetForgotPassword,
   resgisterUser,
   verifyEmail,
@@ -11,6 +14,7 @@ import {
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middlewares.js";
 import {
+  userChangeCurentPasswordValidattor,
   userForgotPasswordValidator,
   UserLogInValidator,
   userRegisterValidator,
@@ -38,5 +42,20 @@ router
 
 // NOTE : secure route
 router.route("/logout").post(verifyJWT, logOut);
+
+router.route("/current-user").post(verifyJWT, getCurrentUser);
+
+router
+  .route("/change-password")
+  .post(
+    verifyJWT,
+    userChangeCurentPasswordValidattor(),
+    validate,
+    changeCurrentPassword,
+  );
+
+router
+  .route("/resend-email-verification")
+  .post(verifyJWT, resendEmailVerification);
 
 export default router;
