@@ -315,7 +315,7 @@ const forgotPasswordRequest = asynHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "password reset mail has been send "));
 });
 
-// reset forgot password
+// !reset forgot password
 const resetForgotPassword = asynHandler(async (req, res) => {
   const { resetToken } = req.params;
   const { newPassword } = req.body;
@@ -345,7 +345,27 @@ const resetForgotPassword = asynHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password reset successfully"));
 });
 
+// ! change password
+const changeCurrentPassword = asynHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user?._id);
+  const isPasswordValid = await user.isPasswordCorrect(oldPassword);
+
+  if (!isPasswordValid) {
+    throw new ApiError(400, "Invliad old password ");
+  }
+
+  User.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password change successfully"));
+});
+
 export {
+  changeCurrentPassword,
   forgotPasswordRequest,
   getCurrentUser,
   logIn,
