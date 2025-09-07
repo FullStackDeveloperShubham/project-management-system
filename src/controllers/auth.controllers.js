@@ -315,6 +315,36 @@ const forgotPasswordRequest = asynHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "password reset mail has been send "));
 });
 
+// reset forgot password
+const resetForgotPassword = asynHandler(async (req, res) => {
+  const { resetToken } = req.params;
+  const { newPassword } = req.body;
+
+  let hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  const user = await User.findOne({
+    forgotPasswordToken: hashedToken,
+    forgotPasswordExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError(489, "Token is invalid or expierd");
+  }
+
+  user.forgotPasswordExpiry = undefined;
+  user.forgotPasswordToken = undefined;
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password reset successfully"));
+});
+
 export {
   forgotPasswordRequest,
   getCurrentUser,
@@ -322,6 +352,7 @@ export {
   logOut,
   refreshAccessToken,
   resendEmailVerification,
+  resetForgotPassword,
   resgisterUser,
   verifyEmail,
 };
