@@ -28,4 +28,15 @@ const UserLogInValidator = () => {
   ];
 };
 
-export { UserLogInValidator, userRegisterValidator };
+const userChangeCurentPasswordValidattor = () => {
+  return [
+    body("oldPassword").notEmpty().withMessage("Old password is requierd"),
+    body("newPassword").notEmpty().withMessage("new password is requierd"),
+  ];
+};
+
+export {
+  userChangeCurentPasswordValidattor,
+  UserLogInValidator,
+  userRegisterValidator,
+};
